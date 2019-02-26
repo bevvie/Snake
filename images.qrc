@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/"/>
+    <qresource prefix="/resource">
+        <file alias="apple">images/apple.bmp</file>
+    </qresource>
+</RCC>
