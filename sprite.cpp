@@ -28,6 +28,11 @@ void Sprite::SetPosition(int x, int y)
     m_rcPosition.moveTo(x, y);
 }
 
+void Sprite::SetPixmap(QPixmap& pixmap)
+{
+    m_pixmap = pixmap;
+}
+
 //----
 
 void Sprite::SetSpeed(QPoint ptPosition)

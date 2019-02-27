@@ -1,6 +1,13 @@
 <RCC>
-    <qresource prefix="/"/>
-    <qresource prefix="/resource">
-        <file alias="apple">images/apple.bmp</file>
+    <qresource prefix="/images"/>
+    <qresource prefix="/head">
+        <file>images/head.bmp</file>
+    </qresource>
+    <qresource prefix="/tail"/>
+    <qresource prefix="/body">
+        <file>images/body.bmp</file>
+    </qresource>
+    <qresource prefix="/food">
+        <file>images/apple.bmp</file>
     </qresource>
 </RCC>

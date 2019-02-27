@@ -18,14 +18,19 @@ public:
     //возвращает координаты прямоугольника
     QRect& GetPosition() { return m_rcPosition; }
 
+    void SetPixmap(QPixmap& pixmap);
+    QPixmap& GetPixmap() { return m_pixmap; }
+
     void SetSpeed(QPoint ptPosition);
     void SetSpeed(int x, int y);
     //возвращает скорость
     QPoint& GetSpeed() { return m_ptSpeed; }
 private:
     QRect m_rcPosition;
+
     //картинка в прямоугольнике
     QPixmap m_pixmap;
+
     //скорость прямоугольника
     QPoint m_ptSpeed;
 

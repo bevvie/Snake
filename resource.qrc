@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/apple.bmp</file>
+        <file>images/body.bmp</file>
+        <file>images/head.bmp</file>
+        <file>images/headDown.bmp</file>
+        <file>images/headLeft.bmp</file>
+        <file>images/headUp.bmp</file>
+        <file>images/up_down.bmp</file>
+        <file>images/tail.bmp</file>
+        <file>images/tailDown.bmp</file>
+        <file>images/tailLeft.bmp</file>
+        <file>images/tailUp.bmp</file>
+    </qresource>
+</RCC>
