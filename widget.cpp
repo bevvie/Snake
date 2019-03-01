@@ -8,6 +8,9 @@
 #include <QBitmap>
 #include <QTime>
 #include <QMessageBox>
+#include <QGraphicsTextItem>
+#include <QLabel>
+
 
 
 Widget::Widget(QWidget *parent) :
@@ -28,47 +31,52 @@ Widget::Widget(QWidget *parent) :
     //random
     qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
 
-
-    //голова
     m_pixmap_head.load(":/images/images/head");
     m_pixmap_headUp.load(":/images/images/headUp");
     m_pixmap_headDown.load(":/images/images/headDown");
     m_pixmap_headLeft.load(":/images/images/headLeft");
-    m_pSpriteHead = new Sprite(m_pixmap_head);
 
+    m_pixmap_body.load(":/images/images/body");
+    m_pixmap_bodyUpDown.load(":/images/images/up_down");
+
+    m_pixmap_tail.load(":/images/images/tail");
+    m_pixmap_tailUp.load(":/images/images/tailUp");
+    m_pixmap_tailDown.load(":/images/images/tailDown");
+    m_pixmap_tailLeft.load(":/images/images/tailLeft");
+
+    m_pixmap_apple.load(":/images/images/apple");
+
+    GameInit();
+    timerId = startTimer(140);
+}
+
+void Widget::GameInit()
+{
+    //голова
+    m_pSpriteHead = new Sprite(m_pixmap_head);
     m_pSpriteHead->SetPosition(0, m_height_window/2);
     m_pSpriteHead->SetSpeed(16, 0);
     Snake.push_back(m_pSpriteHead);
 
     //1 элемент тела
-    m_pixmap_body.load(":/images/images/body");
-    m_pixmap_bodyUpDown.load(":/images/images/up_down");
     m_pSpriteBody = new Sprite(m_pixmap_body);
-
     m_pSpriteBody->SetPosition(- m_pSpriteBody->GetPosition().width(), m_height_window/2);
     m_pSpriteBody->SetSpeed(16, 0);
     Snake.push_back(m_pSpriteBody);
 
     //Хвост
-    m_pixmap_tail.load(":/images/images/tail");
-    m_pixmap_tailUp.load(":/images/images/tailUp");
-    m_pixmap_tailDown.load(":/images/images/tailDown");
-    m_pixmap_tailLeft.load(":/images/images/tailLeft");
     m_pSpriteTail = new Sprite(m_pixmap_tail);
-
     m_pSpriteTail->SetPosition(- m_pSpriteTail->GetPosition().width()*2, m_height_window/2);
     m_pSpriteTail->SetSpeed(16, 0);
     Snake.push_back(m_pSpriteTail);
 
-    m_pixmap_apple.load(":/images/images/apple");
+
     m_pSprite_apple = new Sprite(m_pixmap_apple);
     m_pSprite_apple->SetPosition(qrand() % m_col * m_cell_size, qrand() % m_row * m_cell_size);
     m_pSprite_apple->SetSpeed(0, 0);
 
     //проверка на быстрое нажатие клавиш
     m_test_key = false;
-
-    startTimer(140);
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
@@ -105,9 +113,22 @@ void Widget::keyPressEvent(QKeyEvent *event)
             Snake.front()->SetSpeed(0, 16);
         }
     } break;
-//    case Qt::Key_Space:{
-//        QMessageBox::information(this, "Пауза","Вы нажали на паузу,\n чтобы продолжить, нажмите ОК");
-//    } break;
+    case Qt::Key_Space:{
+
+        //пауза
+        killTimer(timerId);
+        int n = QMessageBox::warning(0, "Snake", "Пауза. Продолжить?",
+                                    "Продолжить", "Начать заново", QString(), 0, 1);
+        if (n)
+            for (int i = 1; i < Snake.size(); i++)
+            {
+                delete Snake[i];
+                Snake.clear();
+                GameInit();
+            }
+        timerId = startTimer(140);
+
+    } break;
 
     }
 
@@ -118,6 +139,8 @@ void Widget::timerEvent(QTimerEvent *e)
 {
 
     //перемещение змеи
+
+    //хвост
     if ((Snake[Snake.size()-2]->GetSpeed().y() > 0) && ((Snake.back()->GetSpeed().y() == 0)))
         Snake.back()->SetPixmap(m_pixmap_tailDown);
     else if ((Snake[Snake.size()-2]->GetSpeed().y() < 0) && ((Snake.back()->GetSpeed().y() == 0)))
@@ -129,6 +152,7 @@ void Widget::timerEvent(QTimerEvent *e)
     Snake.back()->SetPosition(Snake[Snake.size()-2]->GetPosition());
     Snake.back()->SetSpeed(Snake[Snake.size()-2]->GetSpeed());
 
+    //тело
     for (int i = Snake.size() - 2; i > 0; i--)
     {
         if ((Snake[i-1]->GetSpeed().x() == 0) && ((Snake[i]->GetSpeed().x() != 0)))
@@ -140,10 +164,10 @@ void Widget::timerEvent(QTimerEvent *e)
 
 
     }
+
+    //голова
     Snake.front()->SetPosition(Snake.front()->GetPosition().left() + Snake.front()->GetSpeed().x(),
                                Snake.front()->GetPosition().top() + Snake.front()->GetSpeed().y());
-
-
 
     m_test_key = true;
 
@@ -166,7 +190,8 @@ void Widget::timerEvent(QTimerEvent *e)
     }
 
     //змея ест яблоко
-    for (int i = 0; i < Snake.size(); i++) {
+    for (int i = 0; i < Snake.size(); i++)
+    {
         if (m_pSprite_apple->GetPosition().contains(Snake[i]->GetPosition()))
         {
             m_pSpriteBody = new Sprite(Snake[Snake.size() - 2]->GetPixmap());
@@ -176,10 +201,24 @@ void Widget::timerEvent(QTimerEvent *e)
             m_pSprite_apple->SetPosition(qrand() % m_col * m_cell_size, qrand() % m_row * m_cell_size);
 
             Snake.insert(Snake.size() - 2, m_pSpriteBody);
+
+
+
             break;
         }
+    }
 
+    //змея ест себя
+    for (int i = 1; i < Snake.size(); i++)
+    {
+        if (Snake.front()->GetPosition().contains(Snake[i]->GetPosition()))
+        {
+            QMessageBox::about(0, "Snake", "Game over");
 
+            delete Snake[i];
+            Snake.clear();
+            GameInit();
+        }
     }
 
 

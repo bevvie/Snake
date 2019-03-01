@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <QBitmap>
 #include <QVector>
+#include <QLabel>
 
 #include "sprite.h"
 
@@ -17,6 +18,7 @@ class Widget : public QWidget
     Q_OBJECT
 
 public:
+
     explicit Widget(QWidget *parent = nullptr);
     ~Widget();
 
@@ -24,8 +26,11 @@ public:
     void timerEvent(QTimerEvent *);
     void keyPressEvent(QKeyEvent *);
 
+    void GameInit();
+
 private:
     Ui::Widget *ui;
+
     //переменные размера окна
     int m_width_window;
     int m_height_window;
@@ -35,6 +40,7 @@ private:
     int m_cell_size;
 
     QTimer* timer;
+    int timerId;
 
     Sprite* m_pSpriteHead;
     Sprite* m_pSpriteBody;

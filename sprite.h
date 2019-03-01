@@ -33,8 +33,6 @@ private:
 
     //скорость прямоугольника
     QPoint m_ptSpeed;
-
-
 };
 
 #endif // SPRITE_H
