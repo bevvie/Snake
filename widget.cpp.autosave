@@ -9,11 +9,8 @@
 #include <QTime>
 #include <QMessageBox>
 #include <QGraphicsTextItem>
-#include <QLabel>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
-#include <QSound>
-#include <QSoundEffect>
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -92,6 +89,7 @@ void Widget::GameInit()
 
     //проверка на быстрое нажатие клавиш
     m_test_key = false;
+    
     banana_on_widget = false;
     banana_timer = 0;
 }

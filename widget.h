@@ -26,7 +26,16 @@ public:
     void timerEvent(QTimerEvent *);
     void keyPressEvent(QKeyEvent *);
 
+    //void GameInit();
+
+public slots:
     void GameInit();
+    void ShowBanana();
+
+signals:
+    void FoodEated(int cost);
+    void NewGame();
+    void Pause();
 
 private:
     Ui::Widget *ui;
@@ -40,7 +49,7 @@ private:
     int m_cell_size;
 
     QTimer* timer;
-    int timerId;
+    //int timerId;
 
     Sprite* m_pSpriteHead;
     Sprite* m_pSpriteBody;
@@ -63,7 +72,12 @@ private:
     Sprite* m_pSprite_apple;
     QPixmap m_pixmap_apple;
 
+    Sprite* m_pSprite_banana;
+    QPixmap m_pixmap_banana;
+
     bool m_test_key;
+    int banana_timer;
+    bool banana_on_widget;
 };
 
 #endif // WIDGET_H

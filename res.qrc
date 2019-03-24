@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/apple.bmp</file>
+        <file>images/banana.bmp</file>
+        <file>images/bg.jpg</file>
+        <file>images/body.bmp</file>
+        <file>images/head.bmp</file>
+        <file>images/headDown.bmp</file>
+        <file>images/headLeft.bmp</file>
+        <file>images/headUp.bmp</file>
+        <file>images/main_bg.jpg</file>
+        <file>images/nada.jpg</file>
+        <file>images/tail.bmp</file>
+        <file>images/tailDown.bmp</file>
+        <file>images/tailLeft.bmp</file>
+        <file>images/tailUp.bmp</file>
+        <file>images/up_down.bmp</file>
+        <file>images/wall.jpg</file>
+        <file>music/a_am.mp3</file>
+        <file>music/b_nam.mp3</file>
+        <file>music/b_tasty.mp3</file>
+        <file>music/d_set.mp3</file>
+        <file>music/d_skdch.mp3</file>
+    </qresource>
+</RCC>

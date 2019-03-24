@@ -25,6 +25,7 @@ public:
     void SetSpeed(int x, int y);
     //возвращает скорость
     QPoint& GetSpeed() { return m_ptSpeed; }
+
 private:
     QRect m_rcPosition;
 

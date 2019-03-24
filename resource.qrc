@@ -11,5 +11,18 @@
         <file>images/tailDown.bmp</file>
         <file>images/tailLeft.bmp</file>
         <file>images/tailUp.bmp</file>
+        <file>images/bg.jpg</file>
+        <file>images/main_bg.jpg</file>
+        <file>images/nada.jpg</file>
+        <file>images/banana.bmp</file>
+    </qresource>
+    <qresource prefix="/media">
+        <file>music/b_banana.wav</file>
+        <file>music/b_tasty.wav</file>
+        <file>music/d_beda.wav</file>
+        <file>music/d_eka.wav</file>
+        <file>music/d_set.wav</file>
+        <file>music/d_skdch.wav</file>
+        <file>music/am.wav</file>
     </qresource>
 </RCC>

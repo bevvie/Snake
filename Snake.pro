@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-
+QT       += multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Snake
@@ -27,14 +27,18 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         widget.cpp \
-    sprite.cpp
+    sprite.cpp \
+    mainwindow.cpp
 
 HEADERS += \
         widget.h \
-    sprite.h
+    sprite.h \
+    mainwindow.h
 
 FORMS += \
-        widget.ui
+        widget.ui \
+    mainwindow.ui \
+    mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -42,4 +46,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    resource.qrc
+    res.qrc
