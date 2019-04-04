@@ -9,7 +9,6 @@
         <file>images/headLeft.bmp</file>
         <file>images/headUp.bmp</file>
         <file>images/main_bg.jpg</file>
-        <file>images/nada.jpg</file>
         <file>images/tail.bmp</file>
         <file>images/tailDown.bmp</file>
         <file>images/tailLeft.bmp</file>
@@ -21,5 +20,9 @@
         <file>music/b_tasty.mp3</file>
         <file>music/d_set.mp3</file>
         <file>music/d_skdch.mp3</file>
+        <file>images/leftUp-downRight.bmp</file>
+        <file>images/rightUp-downLeft.bmp</file>
+        <file>images/upLeft-rightDown.bmp</file>
+        <file>images/upRight-leftDown.bmp</file>
     </qresource>
 </RCC>

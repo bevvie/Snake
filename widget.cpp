@@ -9,11 +9,8 @@
 #include <QTime>
 #include <QMessageBox>
 #include <QGraphicsTextItem>
-#include <QLabel>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
-#include <QSound>
-#include <QSoundEffect>
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -45,6 +42,11 @@ Widget::Widget(QWidget *parent) :
     m_pixmap_tailUp.load(":/images/tailUp");
     m_pixmap_tailDown.load(":/images/tailDown");
     m_pixmap_tailLeft.load(":/images/tailLeft");
+
+    m_pixmap_lU_dR.load(":/images/leftUp-downRight");
+    m_pixmap_rU_dL.load(":/images/rightUp-downLeft");
+    m_pixmap_uL_rD.load(":/images/upLeft-rightDown");
+    m_pixmap_uR_lD.load(":/images/upRight-leftDown");
 
     m_pixmap_apple.load(":/images/apple");
 
@@ -92,6 +94,7 @@ void Widget::GameInit()
 
     //проверка на быстрое нажатие клавиш
     m_test_key = false;
+
     banana_on_widget = false;
     banana_timer = 0;
 }
@@ -166,10 +169,28 @@ void Widget::timerEvent(QTimerEvent *e)
     //тело
     for (int i = Snake.size() - 2; i > 0; i--)
     {
-        if ((Snake[i-1]->GetSpeed().x() == 0) && ((Snake[i]->GetSpeed().x() != 0)))
-            Snake[i]->SetPixmap(m_pixmap_bodyUpDown);
-        if ((Snake[i-1]->GetSpeed().y() == 0) && ((Snake[i]->GetSpeed().y() != 0)))
-            Snake[i]->SetPixmap(m_pixmap_body);
+        if (i == 1)
+        {
+            if (((Snake.front()->GetPixmap() == m_pixmap_head)&&(Snake[i]->GetSpeed().y() > 0))
+                || ((Snake.front()->GetPixmap() == m_pixmap_headUp)&&(Snake[i]->GetSpeed().x() < 0)))
+                    Snake[i]->SetPixmap(m_pixmap_lU_dR);
+            else if (((Snake.front()->GetPixmap() == m_pixmap_headUp)&&(Snake[i]->GetSpeed().x() > 0))
+                     || ((Snake.front()->GetPixmap() == m_pixmap_headLeft)&&(Snake[i]->GetSpeed().y() > 0)))
+                    Snake[i]->SetPixmap(m_pixmap_rU_dL);
+            else if (((Snake.front()->GetPixmap() == m_pixmap_headLeft)&&(Snake[i]->GetSpeed().y() < 0))
+                     || ((Snake.front()->GetPixmap() == m_pixmap_headDown)&&(Snake[i]->GetSpeed().x() > 0)))
+                    Snake[i]->SetPixmap(m_pixmap_uL_rD);
+            else if (((Snake.front()->GetPixmap() == m_pixmap_head)&&(Snake[i]->GetSpeed().y() < 0))
+                     || ((Snake.front()->GetPixmap() == m_pixmap_headDown)&&(Snake[i]->GetSpeed().x() < 0)))
+                    Snake[i]->SetPixmap(m_pixmap_uR_lD);
+            else if (Snake[i]->GetSpeed().x() == 0)
+                    Snake[i]->SetPixmap(m_pixmap_bodyUpDown);
+            else if (Snake[i]->GetSpeed().y() == 0)
+                    Snake[i]->SetPixmap(m_pixmap_body);
+        }
+        else
+            Snake[i]->SetPixmap(Snake[i-1]->GetPixmap());
+
         Snake[i]->SetPosition(Snake[i-1]->GetPosition());
         Snake[i]->SetSpeed(Snake[i-1]->GetSpeed());
 

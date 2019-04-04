@@ -69,6 +69,11 @@ private:
     QPixmap m_pixmap_tailDown;
     QPixmap m_pixmap_tailLeft;
 
+    QPixmap m_pixmap_lU_dR;
+    QPixmap m_pixmap_rU_dL;
+    QPixmap m_pixmap_uL_rD;
+    QPixmap m_pixmap_uR_lD;
+
     Sprite* m_pSprite_apple;
     QPixmap m_pixmap_apple;
 
