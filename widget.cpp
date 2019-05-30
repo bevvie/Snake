@@ -11,6 +11,8 @@
 #include <QGraphicsTextItem>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
+#include <QFile>
+#include <QTextStream>
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -52,7 +54,18 @@ Widget::Widget(QWidget *parent) :
 
     m_pixmap_banana.load(":/images/banana");
 
-    GameInit();
+    fileSave.setFileName("file.txt");
+
+    m_pSprite_apple = new Sprite(m_pixmap_apple);
+    m_pSprite_apple->SetPosition(qrand() % m_col * m_cell_size, qrand() % m_row * m_cell_size);
+    m_pSprite_apple->SetSpeed(0, 0);
+
+    m_pSprite_banana = new Sprite(m_pixmap_banana);
+    m_pSprite_banana->SetPosition(qrand() % m_col * m_cell_size, qrand() % m_row * m_cell_size);
+    m_pSprite_banana->SetSpeed(0, 0);
+
+    banana_on_widget = false;
+    //GameInit();
 }
 
 void Widget::GameInit()
@@ -62,35 +75,49 @@ void Widget::GameInit()
     for (int i = 1; i < Snake.size(); i++)
     {
         delete Snake[i];
-        Snake.clear();
     }
+    Snake.clear();
 
-    //голова
-    m_pSpriteHead = new Sprite(m_pixmap_head);
-    m_pSpriteHead->SetPosition(0, m_height_window/2);
-    m_pSpriteHead->SetSpeed(16, 0);
-    Snake.push_back(m_pSpriteHead);
+    fileSave.close();
+    ReadFile();
 
-    //1 элемент тела
-    m_pSpriteBody = new Sprite(m_pixmap_body);
-    m_pSpriteBody->SetPosition(- m_pSpriteBody->GetPosition().width(), m_height_window/2);
-    m_pSpriteBody->SetSpeed(16, 0);
-    Snake.push_back(m_pSpriteBody);
+    if (fileSave.size() != 0)
+    {
+        emit KillTimer();
+        int n = QMessageBox::warning(nullptr, "Snake", "Найдена сохраненная игра. Продолжить с последнего сохранения?",
+                                        "Продолжить", "Начать заново", QString(), 0, 1);
 
-    //Хвост
-    m_pSpriteTail = new Sprite(m_pixmap_tail);
-    m_pSpriteTail->SetPosition(- m_pSpriteTail->GetPosition().width()*2, m_height_window/2);
-    m_pSpriteTail->SetSpeed(16, 0);
-    Snake.push_back(m_pSpriteTail);
+        if (n == 1)
+        {
+            emit NewGame();
 
+            for (int i = 1; i < Snake.size(); i++)
+            {
+                delete Snake[i];
+            }
+            Snake.clear();
 
-    m_pSprite_apple = new Sprite(m_pixmap_apple);
-    m_pSprite_apple->SetPosition(qrand() % m_col * m_cell_size, qrand() % m_row * m_cell_size);
-    m_pSprite_apple->SetSpeed(0, 0);
+            //голова
+            m_pSpriteHead = new Sprite(m_pixmap_head);
+            m_pSpriteHead->SetPosition(0, m_height_window/2);
+            m_pSpriteHead->SetSpeed(16, 0);
+            Snake.push_back(m_pSpriteHead);
 
-    m_pSprite_banana = new Sprite(m_pixmap_banana);
-    m_pSprite_banana->SetPosition(qrand() % m_col * m_cell_size, qrand() % m_row * m_cell_size);
-    m_pSprite_banana->SetSpeed(0, 0);
+            //1 элемент тела
+            m_pSpriteBody = new Sprite(m_pixmap_body);
+            m_pSpriteBody->SetPosition(- m_pSpriteBody->GetPosition().width(), m_height_window/2);
+            m_pSpriteBody->SetSpeed(16, 0);
+            Snake.push_back(m_pSpriteBody);
+
+            //Хвост
+            m_pSpriteTail = new Sprite(m_pixmap_tail);
+            m_pSpriteTail->SetPosition(- m_pSpriteTail->GetPosition().width()*2, m_height_window/2);
+            m_pSpriteTail->SetSpeed(16, 0);
+            Snake.push_back(m_pSpriteTail);
+
+        }
+        emit StartTimer();
+    }
 
     //проверка на быстрое нажатие клавиш
     m_test_key = false;
@@ -138,7 +165,6 @@ void Widget::keyPressEvent(QKeyEvent *event)
         }
     } break;
     case Qt::Key_Space:{
-
         //пауза
         emit Pause();
 
@@ -218,7 +244,7 @@ void Widget::timerEvent(QTimerEvent *e)
     } else if (Snake.front()->GetPosition().top() < 0)
     {
         Snake.front()->SetPosition(Snake.front()->GetPosition().left(),
-                                     m_height_window);
+                                     m_height_window - m_cell_size);
     }
 
     //змея ест яблоко
@@ -245,7 +271,7 @@ void Widget::timerEvent(QTimerEvent *e)
 
             Snake.insert(Snake.size() - 2, m_pSpriteBody);
 
-            emit FoodEated(5);
+            emit IncScore(5);
             break;
         }
         else
@@ -278,7 +304,7 @@ void Widget::timerEvent(QTimerEvent *e)
 
                 Snake.insert(Snake.size() - 2, m_pSpriteBody);
 
-                emit FoodEated(10);
+                emit IncScore(10);
                 break;
             }
     }
@@ -303,14 +329,21 @@ void Widget::timerEvent(QTimerEvent *e)
             m_player->setPlaylist(m_playlist);
             m_player->setVolume(30);
             m_player->play();
-
             //-----------------------------------
 
             QMessageBox::about(0, "Snake", "Game over");
 
+            //очистка вектора
             delete Snake[i];
             Snake.clear();
+
+            //очистка файла
+            if (fileSave.open(QIODevice::WriteOnly | QIODevice::Truncate))
+              fileSave.close();
+
+            emit NewGame();
             GameInit();
+            break;
         }
     }
 
@@ -339,6 +372,7 @@ void Widget::paintEvent(QPaintEvent *e)
     {
         Snake[i]->Draw(&painter);
     }
+
 }
 
 void Widget::ShowBanana()
@@ -346,6 +380,136 @@ void Widget::ShowBanana()
     banana_on_widget = true;
     banana_timer = 0;
     m_pSprite_banana->SetPosition(qrand() % m_col * m_cell_size, qrand() % m_row * m_cell_size);
+}
+
+void Widget::SaveGame(int score, int level, int f1, int f2)
+{
+    fileSave.close();
+     if (Snake.size() != 0)
+     {
+         if (fileSave.open(QIODevice::WriteOnly | QIODevice::Text))
+         {
+              QTextStream stream(&fileSave);
+
+              stream << score << endl;
+              stream << level << endl;
+              stream << f1 << endl;
+              stream << f2 << endl;
+
+              for (int i = 0; i < Snake.size(); i++)
+              {
+                  stream << Snake[i]->GetPosition().left() << endl << Snake[i]->GetPosition().top() << endl
+                         << Snake[i]->GetSpeed().x() << endl << Snake[i]->GetSpeed().y() << endl;
+              }
+
+             fileSave.close();
+         }
+     }
+    update();
+}
+
+void Widget::ReadFile()
+{
+    QString sPosX, sPosY, sSpeedX, sSpeedY, sScore, sLevel, sF1, sF2;
+    bool ok;
+    int i = 0;
+
+    if (fileSave.size() != 0)
+    {
+        if (fileSave.open(QIODevice::ReadOnly))
+        {
+            sScore = fileSave.readLine();
+            emit IncScore(sScore.toInt(&ok, 10));
+
+            sLevel = fileSave.readLine();
+            emit SetLevel(sLevel.toInt(&ok, 10));
+
+            sF1 = fileSave.readLine();
+            sF2 = fileSave.readLine();
+            emit SetF1(sF1.toInt(&ok, 10), sF2.toInt(&ok, 10));
+
+            while(!fileSave.atEnd())
+            {
+                sPosX = fileSave.readLine();
+                sPosY = fileSave.readLine();
+                sSpeedX = fileSave.readLine();
+                sSpeedY = fileSave.readLine();
+
+                m_pSpriteHead = new Sprite(m_pixmap_apple);
+
+                m_pSpriteHead->SetPosition(sPosX.toInt(&ok, 10), sPosY.toInt(&ok, 10));
+                m_pSpriteHead->SetSpeed(sSpeedX.toInt(&ok, 10), sSpeedY.toInt(&ok, 10));
+                Snake.push_back(m_pSpriteHead);
+
+                //head
+                if (i == 0)
+                {
+                    if (Snake[i]->GetSpeed().x() > 0)
+                        m_pSpriteHead->SetPixmap(m_pixmap_head);
+                    if (Snake[i]->GetSpeed().x() < 0)
+                        m_pSpriteHead->SetPixmap(m_pixmap_headLeft);
+                    else if (Snake[i]->GetSpeed().y() < 0)
+                        m_pSpriteHead->SetPixmap(m_pixmap_headUp);
+                    else if (Snake[i]->GetSpeed().y() > 0)
+                        m_pSpriteHead->SetPixmap(m_pixmap_headDown);
+                }
+                //body
+                else
+                {
+                    if (Snake[i]->GetSpeed().x() == 0)
+                            Snake[i]->SetPixmap(m_pixmap_bodyUpDown);
+                    else if (Snake[i]->GetSpeed().y() == 0)
+                            Snake[i]->SetPixmap(m_pixmap_body);
+
+                    //повороты
+                    if (((Snake[i-1]->GetSpeed().x() > 0)&&(Snake[i]->GetSpeed().y() > 0))
+                        || ((Snake[i-1]->GetSpeed().y() < 0)&&(Snake[i]->GetSpeed().x() < 0)))
+                            Snake[i-1]->SetPixmap(m_pixmap_lU_dR);
+                    else if (((Snake[i-1]->GetSpeed().y() < 0)&&(Snake[i]->GetSpeed().x() > 0))
+                             || ((Snake[i-1]->GetSpeed().x() < 0)&&(Snake[i]->GetSpeed().y() > 0)))
+                            Snake[i-1]->SetPixmap(m_pixmap_rU_dL);
+                    else if (((Snake[i-1]->GetSpeed().x() < 0)&&(Snake[i]->GetSpeed().y() < 0))
+                             || ((Snake[i-1]->GetSpeed().y() > 0)&&(Snake[i]->GetSpeed().x() > 0)))
+                            Snake[i-1]->SetPixmap(m_pixmap_uL_rD);
+                    else if (((Snake[i-1]->GetSpeed().x() > 0)&&(Snake[i]->GetSpeed().y() < 0))
+                             || ((Snake[i-1]->GetSpeed().y() > 0)&&(Snake[i]->GetSpeed().x() < 0)))
+                            Snake[i-1]->SetPixmap(m_pixmap_uR_lD);
+                }
+                i++;
+            }
+            if (Snake.back()->GetSpeed().x() > 0)
+                Snake.back()->SetPixmap(m_pixmap_tail);
+            if (Snake.back()->GetSpeed().x() < 0)
+                Snake.back()->SetPixmap(m_pixmap_tailLeft);
+            else if (Snake.back()->GetSpeed().y() < 0)
+                Snake.back()->SetPixmap(m_pixmap_tailUp);
+            else if (Snake.back()->GetSpeed().y() > 0)
+                Snake.back()->SetPixmap(m_pixmap_tailDown);
+
+            fileSave.close();
+
+        }
+    }
+    else
+    {
+        //голова
+        m_pSpriteHead = new Sprite(m_pixmap_head);
+        m_pSpriteHead->SetPosition(0, m_height_window/2);
+        m_pSpriteHead->SetSpeed(16, 0);
+        Snake.push_back(m_pSpriteHead);
+
+        //1 элемент тела
+        m_pSpriteBody = new Sprite(m_pixmap_body);
+        m_pSpriteBody->SetPosition(- m_pSpriteBody->GetPosition().width(), m_height_window/2);
+        m_pSpriteBody->SetSpeed(16, 0);
+        Snake.push_back(m_pSpriteBody);
+
+        //Хвост
+        m_pSpriteTail = new Sprite(m_pixmap_tail);
+        m_pSpriteTail->SetPosition(- m_pSpriteTail->GetPosition().width()*2, m_height_window/2);
+        m_pSpriteTail->SetSpeed(16, 0);
+        Snake.push_back(m_pSpriteTail);
+    }
 }
 
 Widget::~Widget()

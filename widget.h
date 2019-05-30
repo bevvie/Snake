@@ -6,6 +6,7 @@
 #include <QBitmap>
 #include <QVector>
 #include <QLabel>
+#include <QFile>
 
 #include "sprite.h"
 
@@ -25,17 +26,21 @@ public:
     void paintEvent(QPaintEvent *);
     void timerEvent(QTimerEvent *);
     void keyPressEvent(QKeyEvent *);
-
-    //void GameInit();
+    void ReadFile();
 
 public slots:
+    void SaveGame(int score, int level, int f1, int f2);
     void GameInit();
     void ShowBanana();
 
 signals:
-    void FoodEated(int cost);
+    void IncScore(int cost);
     void NewGame();
     void Pause();
+    void StartTimer();
+    void KillTimer();
+    void SetLevel(int level);
+    void SetF1(int a1, int a2);
 
 private:
     Ui::Widget *ui;
@@ -49,11 +54,11 @@ private:
     int m_cell_size;
 
     QTimer* timer;
-    //int timerId;
 
     Sprite* m_pSpriteHead;
     Sprite* m_pSpriteBody;
     Sprite* m_pSpriteTail;
+
     QVector<Sprite*> Snake;
 
     QPixmap m_pixmap_head;
@@ -83,6 +88,8 @@ private:
     bool m_test_key;
     int banana_timer;
     bool banana_on_widget;
+
+    QFile fileSave;
 };
 
 #endif // WIDGET_H
